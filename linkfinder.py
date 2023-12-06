@@ -9,6 +9,10 @@ from bs4 import BeautifulSoup
 from colorama import Fore, Style
 from termcolor import colored
 
+def random_color_text(text):
+    color_code = random.choice([30,31,32,33,34,35,36,37,38,39,90,91,92,93,94,95,96,97])  # Chọn ngẫu nhiên một mã màu
+    return f"\033[{color_code}m{text}\033[0m"
+
 def signURLCRAWLER():
     url_crawler_ascii = r"""
 
@@ -27,8 +31,7 @@ def signURLCRAWLER():
 
     # Chuyển màu từ trên xuống dưới
     for line in lines:
-        random_color = random.choice([Fore.RED, Fore.GREEN, Fore.YELLOW, Fore.BLUE, Fore.MAGENTA, Fore.CYAN, Fore.WHITE, Fore.LIGHTBLACK_EX,Fore.LIGHTBLUE_EX])
-        print(random_color + line + Style.RESET_ALL)
+        print(random_color_text(line))
         time.sleep(0.01) 
 
 USER_AGENTS_URL = "https://gist.githubusercontent.com/pzb/b4b6f57144aea7827ae4/raw/cf847b76a142955b1410c8bcef3aabe221a63db1/user-agents.txt"
