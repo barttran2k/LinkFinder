@@ -1,12 +1,38 @@
 import argparse
+from ast import For
 import requests
 import random
+import time
+import itertools
+import sys
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 from colorama import Fore, Style
 
-USER_AGENTS_URL = "https://gist.githubusercontent.com/pzb/b4b6f57144aea7827ae4/raw/cf847b76a142955b1410c8bcef3aabe221a63db1/user-agents.txt"
+def signURLCRAWLER():
+    url_crawler_ascii = r"""
 
+███    █▄     ▄████████  ▄█             ▄████████    ▄████████    ▄████████  ▄█     █▄   ▄█          ▄████████    ▄████████ 
+███    ███   ███    ███ ███            ███    ███   ███    ███   ███    ███ ███     ███ ███         ███    ███   ███    ███ 
+███    ███   ███    ███ ███            ███    █▀    ███    ███   ███    ███ ███     ███ ███         ███    █▀    ███    ███ 
+███    ███  ▄███▄▄▄▄██▀ ███            ███         ▄███▄▄▄▄██▀   ███    ███ ███     ███ ███        ▄███▄▄▄      ▄███▄▄▄▄██▀ 
+███    ███ ▀▀███▀▀▀▀▀   ███            ███        ▀▀███▀▀▀▀▀   ▀███████████ ███     ███ ███       ▀▀███▀▀▀     ▀▀███▀▀▀▀▀   
+███    ███ ▀███████████ ███            ███    █▄  ▀███████████   ███    ███ ███     ███ ███         ███    █▄  ▀███████████ 
+███    ███   ███    ███ ███▌    ▄      ███    ███   ███    ███   ███    ███ ███ ▄█▄ ███ ███▌    ▄   ███    ███   ███    ███ 
+████████▀    ███    ███ █████▄▄██      ████████▀    ███    ███   ███    █▀   ▀███▀███▀  █████▄▄██   ██████████   ███    ███ 
+             ███    ███ ▀                           ███    ███                          ▀                        ███    ███ 
+                                                                                                                                                                                                         
+    """
+    lines = url_crawler_ascii.split('\n')
+
+    # Chuyển màu từ trên xuống dưới
+    for line in lines:
+        random_color = random.choice([Fore.RED, Fore.GREEN, Fore.YELLOW, Fore.BLUE, Fore.MAGENTA, Fore.CYAN, Fore.WHITE, Fore.LIGHTBLACK_EX,Fore.LIGHTBLUE_EX])
+        print(random_color + line + Style.RESET_ALL)
+        time.sleep(0.01) 
+
+USER_AGENTS_URL = "https://gist.githubusercontent.com/pzb/b4b6f57144aea7827ae4/raw/cf847b76a142955b1410c8bcef3aabe221a63db1/user-agents.txt"
+spinner = itertools.cycle(["|", "/", "-", "\\"])
 
 def get_user_agents(url):
     try:
@@ -25,10 +51,8 @@ def get_user_agents(url):
 
 def extract_urls_from_html(html_content):
     soup = BeautifulSoup(html_content, "html.parser")
-    # Thực hiện logic để trích xuất các URL từ HTML, ví dụ:
     a_tags = soup.find_all("a", href=True)
     script_tags = soup.find_all("script", src=True)
-    # Thêm các thẻ khác nếu cần thiết
     extracted_urls = [tag["href"] for tag in a_tags] + [tag["src"] for tag in script_tags]
     return extracted_urls
 
@@ -53,17 +77,14 @@ def extract_urls_from_json(json_data):
 def crawl_url(url, visited_urls, same_domain_urls, diff_domain_urls, user_agents, headers):
     if url in visited_urls:
         return
-
     try:
-        print(f"Processing: {url}", end='\r')
+        print(f"\033[K {next(spinner)} Processing: {url} ", end='\r')
         headers["User-Agent"] = random.choice(user_agents)
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
             visited_urls.add(url)
 
-            # Kiểm tra nếu response là JSON
             if 'application/json' in response.headers.get('content-type', ''):
-                # Xử lý dữ liệu JSON và trích xuất URL
                 json_data = response.json()
                 json_urls = extract_urls_from_json(json_data)
                 for json_url in sorted(json_urls):
@@ -78,7 +99,6 @@ def crawl_url(url, visited_urls, same_domain_urls, diff_domain_urls, user_agents
                         diff_domain_urls.add(full_url)
 
             else:
-                # Xử lý dữ liệu HTML và trích xuất URL
                 extracted_urls = extract_urls_from_html(response.text)
                 for extracted_url in sorted(extracted_urls):
                     full_url = urljoin(url, extracted_url)
@@ -92,13 +112,17 @@ def crawl_url(url, visited_urls, same_domain_urls, diff_domain_urls, user_agents
                         diff_domain_urls.add(full_url)
 
     except Exception as e:
-        print(f"Error crawling {url}: {e}")
+        print(f"\033[KError crawling {url}: {e}")
 
 
 def main():
+    signURLCRAWLER()
     parser = argparse.ArgumentParser(description="URL Crawler")
     parser.add_argument("-u", "--url", type=str, help="Initial URL")
     parser.add_argument("-H", "--header", action="append", metavar="KEY:VALUE", help="Custom headers")
+    parser.add_argument("-o", "--output", type=str, help="Output file name")
+    parser.add_argument("-t", "--type", type=str, help="Type of URLs to search (e.g., web, image, file)")
+    parser.add_argument("-b", "--blacklist", type=str, help="Comma-separated list of blacklisted domains")
     args = parser.parse_args()
 
     if not args.url:
@@ -117,16 +141,26 @@ def main():
             key, value = header.split(":", 1)
             headers[key.strip()] = value.strip()
 
-    crawl_url(initial_url, visited_urls, same_domain_urls, diff_domain_urls, user_agents, headers)
+    try:
+        while True:
+            crawl_url(initial_url, visited_urls, same_domain_urls, diff_domain_urls, user_agents, headers)
+    except KeyboardInterrupt:
+        print("\nCrawling interrupted by user.")
 
     print("\nResults:")
     print(f"{Fore.GREEN}Same Domain URLs:{Style.RESET_ALL}")
     for url in sorted(same_domain_urls):
         print(Fore.GREEN + url + Style.RESET_ALL)
+        if args.output:
+            with open(args.output, "a") as output_file:
+                output_file.write(url + "\n")
 
     print(f"{Fore.YELLOW}Different Domain URLs:{Style.RESET_ALL}")
     for url in sorted(diff_domain_urls):
         print(Fore.YELLOW + url + Style.RESET_ALL)
+        if args.output:
+            with open(args.output, "a") as output_file:
+                output_file.write(url + "\n")
 
 
 if __name__ == "__main__":
