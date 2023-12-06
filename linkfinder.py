@@ -1,5 +1,4 @@
 import argparse
-from ast import For
 import requests
 import random
 import time
@@ -8,6 +7,7 @@ import sys
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 from colorama import Fore, Style
+from termcolor import colored
 
 def signURLCRAWLER():
     url_crawler_ascii = r"""
@@ -78,7 +78,7 @@ def crawl_url(url, visited_urls, same_domain_urls, diff_domain_urls, user_agents
     if url in visited_urls:
         return
     try:
-        print(f"\033[K {next(spinner)} Processing: {url} ", end='\r')
+        print(f"{Fore.GREEN}\033[K {next(spinner)} Processing: {url} ", end='\r')
         headers["User-Agent"] = random.choice(user_agents)
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
