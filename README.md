@@ -30,4 +30,4 @@ The URL Crawler Tool is a versatile Python script designed to crawl and extract 
 ## Usage
 
 ```bash
-python url_crawler.py -u <initial_url> -H "Header1: Value1" -H "Header2: Value2"
+python linkfinder.py -u <initial_url> -H "Header1: Value1" -H "Header2: Value2"
