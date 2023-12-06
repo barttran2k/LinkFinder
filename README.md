@@ -26,9 +26,11 @@ The URL Crawler Tool is a versatile Python script designed to crawl and extract 
 
 7. **Console Output Formatting:**
    - The tool uses `end='\r'` for console output to provide a cleaner and more dynamic display, especially during processing.
-
-## Usage
-
+## Install
 ```bash
 pip install -r requirements.txt
+```
+## Usage
+```bash
 python linkfinder.py -u <initial_url> -H "Header1: Value1" -H "Header2: Value2"
+```
