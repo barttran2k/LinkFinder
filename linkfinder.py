@@ -48,19 +48,16 @@ def extract_urls_from_html(html_content, base_url):
         a_tags = soup.find_all("a", href=True)
         script_tags = soup.find_all("script", src=True)
         extracted_urls = [tag["href"] for tag in a_tags] + [tag["src"] for tag in script_tags]
-
-        for extracted_url in extracted_urls:
-            full_url = urljoin(base_url, extracted_url)
-            parsed_url = urlparse(full_url)
-
-            if parsed_url.path.endswith("robots.txt"):
-                # If the URL ends with robots.txt, get disallowed URIs from robots.txt
-                disallowed_uris = get_disallowed_uris(full_url)
-                for disallowed_uri in disallowed_uris:
-                    disallowed_url = urljoin(full_url, disallowed_uri)
-                    yield disallowed_url
-            else:
-                yield full_url
+        parsed_url = urlparse(base_url)
+        if parsed_url.path.endswith("robots.txt"):
+            # If the URL ends with robots.txt, get disallowed URIs from robots.txt
+            disallowed_uris = get_disallowed_uris(full_url)
+            for disallowed_uri in disallowed_uris:
+                disallowed_url = urljoin(full_url, disallowed_uri)
+            extracted_urls.append(disallowed_url)
+            return extracted_urls 
+        else:
+            return extracted_urls
 
     except Exception as e:
         print(f"Error extracting URLs from HTML: {e}")
