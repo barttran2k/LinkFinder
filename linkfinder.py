@@ -1,6 +1,6 @@
 import argparse
 import requests
-import random,time
+import random,time,sys
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 from colorama import Fore, Style
@@ -80,7 +80,12 @@ def crawl_url(url, visited_urls, same_domain_urls, diff_domain_urls, user_agents
         return
 
     try:
-        print(f"{Fore.GREEN}\033[KProcessing: {url} ", end='\r')
+        count_all = len(same_domain_urls) + len(diff_domain_urls)
+        # print(f"{Fore.YELLOW}\033[KFound: {str(count_all)} URLs",end='\n')
+        # print(f"{Fore.GREEN}\033[KProcessing: {url}", end='\r')
+        
+        sys.stdout.write(f"\r\033[KFound: {Fore.LIGHTRED_EX}{str(count_all)} URLs | {Fore.GREEN}Processing: {url}")
+        sys.stdout.flush()
         headers["User-Agent"] = random.choice(user_agents)
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
@@ -128,6 +133,7 @@ def main():
     parser.add_argument("-o", "--output", type=str, help="Output file name")
     parser.add_argument("-t", "--type", type=str, help="Type of URLs to search (e.g., web, image, file)")
     parser.add_argument("-b", "--blacklist", type=str, help="Comma-separated list of blacklisted domains")
+    parser.add_argument("-T", "--thread", type=str, help="Number of threads to use")
     args = parser.parse_args()
 
     if not args.url:
