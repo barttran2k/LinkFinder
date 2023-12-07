@@ -43,23 +43,28 @@ def get_user_agents(url):
     return []
 
 def extract_urls_from_html(html_content, base_url):
-    soup = BeautifulSoup(html_content, "html.parser")
-    a_tags = soup.find_all("a", href=True)
-    script_tags = soup.find_all("script", src=True)
-    extracted_urls = [tag["href"] for tag in a_tags] + [tag["src"] for tag in script_tags]
+    try:
+        soup = BeautifulSoup(html_content, "html.parser")
+        a_tags = soup.find_all("a", href=True)
+        script_tags = soup.find_all("script", src=True)
+        extracted_urls = [tag["href"] for tag in a_tags] + [tag["src"] for tag in script_tags]
 
-    for extracted_url in extracted_urls:
-        full_url = urljoin(base_url, extracted_url)
-        parsed_url = urlparse(full_url)
+        for extracted_url in extracted_urls:
+            full_url = urljoin(base_url, extracted_url)
+            parsed_url = urlparse(full_url)
 
-        if parsed_url.path.endswith("robots.txt"):
-            # If the URL ends with robots.txt, get disallowed URIs from robots.txt
-            disallowed_uris = get_disallowed_uris(full_url)
-            for disallowed_uri in disallowed_uris:
-                disallowed_url = urljoin(full_url, disallowed_uri)
-                yield disallowed_url
-        else:
-            yield full_url
+            if parsed_url.path.endswith("robots.txt"):
+                # If the URL ends with robots.txt, get disallowed URIs from robots.txt
+                disallowed_uris = get_disallowed_uris(full_url)
+                for disallowed_uri in disallowed_uris:
+                    disallowed_url = urljoin(full_url, disallowed_uri)
+                    yield disallowed_url
+            else:
+                yield full_url
+
+    except Exception as e:
+        print(f"Error extracting URLs from HTML: {e}")
+        pass  # Ignore the error and continue
 
 
 def extract_urls_from_json(json_data):
