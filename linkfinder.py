@@ -187,20 +187,6 @@ def main():
         print_results(set(), diff_domain_urls, args.output)
     else:
         print_results(same_domain_urls, diff_domain_urls, args.output)
-        # print(f"{Fore.GREEN}Same Domain URLs:{Style.RESET_ALL}")
-        # for url in sorted(same_domain_urls):
-        #     print(Fore.GREEN + url + Style.RESET_ALL)
-        #     if args.output:
-        #         with open(args.output, "a") as output_file:
-        #             output_file.write(url + "\n")
-
-        # print(f"{Fore.YELLOW}Different Domain URLs:{Style.RESET_ALL}")
-        # for url in sorted(diff_domain_urls):
-        #     print(Fore.YELLOW + url + Style.RESET_ALL)
-        #     if args.output:
-        #         with open(args.output, "a") as output_file:
-        #             output_file.write(url + "\n")
-
-
+        
 if __name__ == "__main__":
     main()
