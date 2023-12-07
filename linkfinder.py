@@ -1,16 +1,15 @@
 import argparse
 import requests
-import random
-import time
-import itertools
-import sys
+import random,time
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 from colorama import Fore, Style
-from termcolor import colored
+
+USER_AGENTS_URL = "https://gist.githubusercontent.com/pzb/b4b6f57144aea7827ae4/raw/cf847b76a142955b1410c8bcef3aabe221a63db1/user-agents.txt"
+
 
 def random_color_text(text):
-    color_code = random.choice([30,31,32,33,34,35,36,37,38,39,90,91,92,93,94,95,96,97])  # Chọn ngẫu nhiên một mã màu
+    color_code = random.choice([30,31,32,33,34,35,36,37,38,39,90,91,92,93,94,95,96,97]) 
     return f"\033[{color_code}m{text}\033[0m"
 
 def signURLCRAWLER():
@@ -33,10 +32,7 @@ def signURLCRAWLER():
     for line in lines:
         print(random_color_text(line))
         time.sleep(0.01) 
-
-USER_AGENTS_URL = "https://gist.githubusercontent.com/pzb/b4b6f57144aea7827ae4/raw/cf847b76a142955b1410c8bcef3aabe221a63db1/user-agents.txt"
-spinner = itertools.cycle(["|", "/", "-", "\\"])
-
+        
 def get_user_agents(url):
     try:
         response = requests.get(url)
@@ -54,8 +50,10 @@ def get_user_agents(url):
 
 def extract_urls_from_html(html_content):
     soup = BeautifulSoup(html_content, "html.parser")
+    # Thực hiện logic để trích xuất các URL từ HTML, ví dụ:
     a_tags = soup.find_all("a", href=True)
     script_tags = soup.find_all("script", src=True)
+    # Thêm các thẻ khác nếu cần thiết
     extracted_urls = [tag["href"] for tag in a_tags] + [tag["src"] for tag in script_tags]
     return extracted_urls
 
@@ -80,14 +78,17 @@ def extract_urls_from_json(json_data):
 def crawl_url(url, visited_urls, same_domain_urls, diff_domain_urls, user_agents, headers):
     if url in visited_urls:
         return
+
     try:
-        print(f"{Fore.GREEN}\033[K {next(spinner)} Processing: {url} ", end='\r')
+        print(f"{Fore.GREEN}\033[KProcessing: {url} ", end='\r')
         headers["User-Agent"] = random.choice(user_agents)
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
             visited_urls.add(url)
 
+            # Kiểm tra nếu response là JSON
             if 'application/json' in response.headers.get('content-type', ''):
+                # Xử lý dữ liệu JSON và trích xuất URL
                 json_data = response.json()
                 json_urls = extract_urls_from_json(json_data)
                 for json_url in sorted(json_urls):
@@ -102,6 +103,7 @@ def crawl_url(url, visited_urls, same_domain_urls, diff_domain_urls, user_agents
                         diff_domain_urls.add(full_url)
 
             else:
+                # Xử lý dữ liệu HTML và trích xuất URL
                 extracted_urls = extract_urls_from_html(response.text)
                 for extracted_url in sorted(extracted_urls):
                     full_url = urljoin(url, extracted_url)
@@ -115,7 +117,7 @@ def crawl_url(url, visited_urls, same_domain_urls, diff_domain_urls, user_agents
                         diff_domain_urls.add(full_url)
 
     except Exception as e:
-        print(f"\033[KError crawling {url}: {e}")
+        print(f"Error crawling {url}: {e}")
 
 
 def main():
@@ -164,6 +166,7 @@ def main():
         if args.output:
             with open(args.output, "a") as output_file:
                 output_file.write(url + "\n")
+
 
 
 if __name__ == "__main__":
