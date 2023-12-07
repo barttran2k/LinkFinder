@@ -42,13 +42,24 @@ def get_user_agents(url):
         print(f"Error: {e}")
     return []
 
-
-def extract_urls_from_html(html_content):
+def extract_urls_from_html(html_content, base_url):
     soup = BeautifulSoup(html_content, "html.parser")
     a_tags = soup.find_all("a", href=True)
     script_tags = soup.find_all("script", src=True)
     extracted_urls = [tag["href"] for tag in a_tags] + [tag["src"] for tag in script_tags]
-    return extracted_urls
+
+    for extracted_url in extracted_urls:
+        full_url = urljoin(base_url, extracted_url)
+        parsed_url = urlparse(full_url)
+
+        if parsed_url.path.endswith("robots.txt"):
+            # If the URL ends with robots.txt, get disallowed URIs from robots.txt
+            disallowed_uris = get_disallowed_uris(full_url)
+            for disallowed_uri in disallowed_uris:
+                disallowed_url = urljoin(full_url, disallowed_uri)
+                yield disallowed_url
+        else:
+            yield full_url
 
 
 def extract_urls_from_json(json_data):
@@ -93,7 +104,7 @@ def crawl_single_url(url, visited_urls, same_domain_urls, diff_domain_urls, user
                         else:
                             diff_domain_urls.add(full_url)
                 else:
-                    extracted_urls = extract_urls_from_html(response.text)
+                    extracted_urls = extract_urls_from_html(response.text, url)
                     for extracted_url in sorted(extracted_urls):
                         full_url = urljoin(url, extracted_url)
                         parsed_url = urlparse(full_url)
@@ -187,6 +198,6 @@ def main():
         print_results(set(), diff_domain_urls, args.output)
     else:
         print_results(same_domain_urls, diff_domain_urls, args.output)
-        
+
 if __name__ == "__main__":
     main()
