@@ -1,6 +1,8 @@
 import argparse
 import requests
-import random,time,sys
+import random
+import time
+import sys
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 from colorama import Fore, Style
@@ -9,29 +11,24 @@ USER_AGENTS_URL = "https://gist.githubusercontent.com/pzb/b4b6f57144aea7827ae4/r
 
 
 def random_color_text(text):
-    color_code = random.choice([30,31,32,33,34,35,36,37,38,39,90,91,92,93,94,95,96,97]) 
+    color_code = random.choice([30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 90, 91, 92, 93, 94, 95, 96, 97])
     return f"\033[{color_code}m{text}\033[0m"
+
 
 def signURLCRAWLER():
     url_crawler_ascii = r"""
-
-███    █▄     ▄████████  ▄█             ▄████████    ▄████████    ▄████████  ▄█     █▄   ▄█          ▄████████    ▄████████ 
-███    ███   ███    ███ ███            ███    ███   ███    ███   ███    ███ ███     ███ ███         ███    ███   ███    ███ 
-███    ███   ███    ███ ███            ███    █▀    ███    ███   ███    ███ ███     ███ ███         ███    █▀    ███    ███ 
-███    ███  ▄███▄▄▄▄██▀ ███            ███         ▄███▄▄▄▄██▀   ███    ███ ███     ███ ███        ▄███▄▄▄      ▄███▄▄▄▄██▀ 
-███    ███ ▀▀███▀▀▀▀▀   ███            ███        ▀▀███▀▀▀▀▀   ▀███████████ ███     ███ ███       ▀▀███▀▀▀     ▀▀███▀▀▀▀▀   
-███    ███ ▀███████████ ███            ███    █▄  ▀███████████   ███    ███ ███     ███ ███         ███    █▄  ▀███████████ 
-███    ███   ███    ███ ███▌    ▄      ███    ███   ███    ███   ███    ███ ███ ▄█▄ ███ ███▌    ▄   ███    ███   ███    ███ 
-████████▀    ███    ███ █████▄▄██      ████████▀    ███    ███   ███    █▀   ▀███▀███▀  █████▄▄██   ██████████   ███    ███ 
-             ███    ███ ▀                           ███    ███                          ▀                        ███    ███ 
-                                                                                                                                                                                                         
+    ███    █▄     ▄████████  ▄█             ▄████████    ▄████████    ▄████████  ▄█     █▄   ▄█          ▄████████    ▄████████ 
+    ███    ███   ███    ███ ███            ███    ███   ███    ███   ███    ███ ███     ███ ███         ███    ███   ███    ███ 
+    ███    ███   ███    ███ ███            ███    █▀    ███    ███   ███    ███ ███     ███ ███         ███    █▀    ███    ███ 
+    ███    ███  ▄███▄▄▄▄██▀ ███            ███         ▄███▄▄▄▄██▀   ███    ███ ███     ███ ███        ▄███▄▄▄      ▄███▄▄▄▄██▀ 
+    ███    ███ ▀▀███▀▀▀▀▀   ███            ███        ▀▀███▀▀▀▀▀   ▀███████████ ███     ███ ███       ▀▀███▀▀▀     ▀▀███▀▀▀▀▀   
+    ███    ███ ▀███████████ ███            ███    █▄  ▀███████████   ███    ███ ███     ███ ███         ███    █▄  ▀███████████ 
+    ███    ███   ███    ███ ███▌    ▄      ███    ███   ███    ███   ███    ███ ███ ▄█▄ ███ ███▌    ▄   ███    ███   ███    ███ 
+    █████████    ███    ███ █████▄▄██      ████████▀    ███    ███   ███    █▀   ▀███▀███▀  █████▄▄██   ██████████   ███    ███ 
+                 ███    ███ ▀                           ███    ███                          ▀                        ███    ███ 
     """
-    lines = url_crawler_ascii.split('\n')
-
-    # Chuyển màu từ trên xuống dưới
-    for line in lines:
-        print(random_color_text(line))
-        time.sleep(0.01) 
+    for i in url_crawler_ascii.split("\n"):
+        print(random_color_text(i))
         
 def get_user_agents(url):
     try:
@@ -40,9 +37,7 @@ def get_user_agents(url):
             user_agents = response.text.split("\n")
             return [agent.strip() for agent in user_agents if agent.strip()]
         else:
-            print(
-                f"Failed to retrieve user agents. Status code: {response.status_code}"
-            )
+            print(f"Failed to retrieve user agents. Status code: {response.status_code}")
     except Exception as e:
         print(f"Error: {e}")
     return []
@@ -50,10 +45,8 @@ def get_user_agents(url):
 
 def extract_urls_from_html(html_content):
     soup = BeautifulSoup(html_content, "html.parser")
-    # Thực hiện logic để trích xuất các URL từ HTML, ví dụ:
     a_tags = soup.find_all("a", href=True)
     script_tags = soup.find_all("script", src=True)
-    # Thêm các thẻ khác nếu cần thiết
     extracted_urls = [tag["href"] for tag in a_tags] + [tag["src"] for tag in script_tags]
     return extracted_urls
 
@@ -75,54 +68,59 @@ def extract_urls_from_json(json_data):
     return urls
 
 
-def crawl_url(url, visited_urls, same_domain_urls, diff_domain_urls, user_agents, headers):
-    if url in visited_urls:
-        return
+def crawl_single_url(url, visited_urls, same_domain_urls, diff_domain_urls, user_agents, headers, retry=3, timeout=30):
+    for _ in range(retry):
+        try:
+            count_all = len(same_domain_urls) + len(diff_domain_urls)
+            sys.stdout.write(f"\r\033[KFound: {Fore.LIGHTRED_EX}{str(count_all)} URLs | {Fore.GREEN}Processing: {url}")
+            sys.stdout.flush()
+            headers["User-Agent"] = random.choice(user_agents)
+            response = requests.get(url, headers=headers, timeout=timeout)
+            
+            if response.status_code == 200:
+                visited_urls.add(url)
+                
+                if 'application/json' in response.headers.get('content-type', ''):
+                    json_data = response.json()
+                    json_urls = extract_urls_from_json(json_data)
+                    for json_url in sorted(json_urls):
+                        full_url = urljoin(url, json_url)
+                        parsed_url = urlparse(full_url)
+                        if parsed_url.netloc == urlparse(url).netloc:
+                            same_domain_urls.add(full_url)
+                            if full_url not in visited_urls:
+                                crawl_single_url(full_url, visited_urls, same_domain_urls, diff_domain_urls, user_agents, headers)
+                        else:
+                            diff_domain_urls.add(full_url)
+                else:
+                    extracted_urls = extract_urls_from_html(response.text)
+                    for extracted_url in sorted(extracted_urls):
+                        full_url = urljoin(url, extracted_url)
+                        parsed_url = urlparse(full_url)
+                        if parsed_url.netloc == urlparse(url).netloc:
+                            same_domain_urls.add(full_url)
+                            if full_url not in visited_urls:
+                                crawl_single_url(full_url, visited_urls, same_domain_urls, diff_domain_urls, user_agents, headers)
+                        else:
+                            diff_domain_urls.add(full_url)
+                break  # Stop retrying if successful
+        except requests.RequestException as e:
+            print(f"\nError crawling {url}: {e}")
+            time.sleep(1)  # Sleep for a while before retrying
 
-    try:
-        count_all = len(same_domain_urls) + len(diff_domain_urls)
-        # print(f"{Fore.YELLOW}\033[KFound: {str(count_all)} URLs",end='\n')
-        # print(f"{Fore.GREEN}\033[KProcessing: {url}", end='\r')
-        
-        sys.stdout.write(f"\r\033[KFound: {Fore.LIGHTRED_EX}{str(count_all)} URLs | {Fore.GREEN}Processing: {url}")
-        sys.stdout.flush()
-        headers["User-Agent"] = random.choice(user_agents)
-        response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-            visited_urls.add(url)
 
-            # Kiểm tra nếu response là JSON
-            if 'application/json' in response.headers.get('content-type', ''):
-                # Xử lý dữ liệu JSON và trích xuất URL
-                json_data = response.json()
-                json_urls = extract_urls_from_json(json_data)
-                for json_url in sorted(json_urls):
-                    full_url = urljoin(url, json_url)
-                    parsed_url = urlparse(full_url)
+def crawl_with_threads(initial_url, visited_urls, same_domain_urls, diff_domain_urls, user_agents, headers, num_threads, retry=3, timeout=30):
+    from concurrent.futures import ThreadPoolExecutor
 
-                    if parsed_url.netloc == urlparse(url).netloc:
-                        same_domain_urls.add(full_url)
-                        if full_url not in visited_urls:
-                            crawl_url(full_url, visited_urls, same_domain_urls, diff_domain_urls, user_agents, headers)
-                    else:
-                        diff_domain_urls.add(full_url)
+    def crawl_url_wrapper(url):
+        crawl_single_url(url, visited_urls, same_domain_urls, diff_domain_urls, user_agents, headers, retry=retry, timeout=timeout)
 
-            else:
-                # Xử lý dữ liệu HTML và trích xuất URL
-                extracted_urls = extract_urls_from_html(response.text)
-                for extracted_url in sorted(extracted_urls):
-                    full_url = urljoin(url, extracted_url)
-                    parsed_url = urlparse(full_url)
+    with ThreadPoolExecutor(max_workers=num_threads) as executor:
+        futures = [executor.submit(crawl_url_wrapper, url) for url in same_domain_urls | diff_domain_urls]
 
-                    if parsed_url.netloc == urlparse(url).netloc:
-                        same_domain_urls.add(full_url)
-                        if full_url not in visited_urls:
-                            crawl_url(full_url, visited_urls, same_domain_urls, diff_domain_urls, user_agents, headers)
-                    else:
-                        diff_domain_urls.add(full_url)
+        for future in futures:
+            future.result()
 
-    except Exception as e:
-        print(f"Error crawling {url}: {e}")
 
 
 def main():
@@ -134,6 +132,8 @@ def main():
     parser.add_argument("-t", "--type", type=str, help="Type of URLs to search (e.g., web, image, file)")
     parser.add_argument("-b", "--blacklist", type=str, help="Comma-separated list of blacklisted domains")
     parser.add_argument("-T", "--thread", type=str, help="Number of threads to use")
+    parser.add_argument("--retry", type=int, default=3, help="Number of retries for a failed request")
+    parser.add_argument("--timeout", type=int, default=30, help="Timeout for each request in seconds")
     args = parser.parse_args()
 
     if not args.url:
@@ -153,8 +153,10 @@ def main():
             headers[key.strip()] = value.strip()
 
     try:
-        while True:
-            crawl_url(initial_url, visited_urls, same_domain_urls, diff_domain_urls, user_agents, headers)
+        crawl_single_url(initial_url, visited_urls, same_domain_urls, diff_domain_urls, user_agents, headers, retry=args.retry, timeout=args.timeout)
+        if args.thread:
+            num_threads = int(args.thread)
+            crawl_with_threads(initial_url, visited_urls, same_domain_urls, diff_domain_urls, user_agents, headers, num_threads, retry=args.retry, timeout=args.timeout)
     except KeyboardInterrupt:
         print("\nCrawling interrupted by user.")
 
@@ -172,7 +174,6 @@ def main():
         if args.output:
             with open(args.output, "a") as output_file:
                 output_file.write(url + "\n")
-
 
 
 if __name__ == "__main__":
