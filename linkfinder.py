@@ -121,6 +121,25 @@ def crawl_with_threads(initial_url, visited_urls, same_domain_urls, diff_domain_
         for future in futures:
             future.result()
 
+def print_results(same_domain_urls, diff_domain_urls, output_file=None):
+    if output_file:
+        with open(output_file, "w") as file:
+            print(f"{Fore.GREEN}Same Domain URLs:{Style.RESET_ALL}", file=file)
+            for url in sorted(same_domain_urls):
+                print(url, file=file)
+
+            print(f"{Fore.YELLOW}Different Domain URLs:{Style.RESET_ALL}", file=file)
+            for url in sorted(diff_domain_urls):
+                print(url, file=file)
+    else:
+        print("\nResults:")
+        print(f"{Fore.GREEN}Same Domain URLs:{Style.RESET_ALL}")
+        for url in sorted(same_domain_urls):
+            print(Fore.GREEN + url + Style.RESET_ALL)
+
+        print(f"{Fore.YELLOW}Different Domain URLs:{Style.RESET_ALL}")
+        for url in sorted(diff_domain_urls):
+            print(Fore.YELLOW + url + Style.RESET_ALL)
 
 
 def main():
@@ -134,6 +153,7 @@ def main():
     parser.add_argument("-T", "--thread", type=str, help="Number of threads to use")
     parser.add_argument("--retry", type=int, default=3, help="Number of retries for a failed request")
     parser.add_argument("--timeout", type=int, default=30, help="Timeout for each request in seconds")
+    parser.add_argument("--show", choices=["same", "diff", "all"], default="same", help="Show URLs of the same domain, different domain, or both")
     args = parser.parse_args()
 
     if not args.url:
@@ -161,19 +181,25 @@ def main():
         print("\nCrawling interrupted by user.")
 
     print("\nResults:")
-    print(f"{Fore.GREEN}Same Domain URLs:{Style.RESET_ALL}")
-    for url in sorted(same_domain_urls):
-        print(Fore.GREEN + url + Style.RESET_ALL)
-        if args.output:
-            with open(args.output, "a") as output_file:
-                output_file.write(url + "\n")
+    if args.show == "same":
+        print_results(same_domain_urls, set(), args.output)
+    elif args.show == "diff":
+        print_results(set(), diff_domain_urls, args.output)
+    else:
+        print_results(same_domain_urls, diff_domain_urls, args.output)
+        # print(f"{Fore.GREEN}Same Domain URLs:{Style.RESET_ALL}")
+        # for url in sorted(same_domain_urls):
+        #     print(Fore.GREEN + url + Style.RESET_ALL)
+        #     if args.output:
+        #         with open(args.output, "a") as output_file:
+        #             output_file.write(url + "\n")
 
-    print(f"{Fore.YELLOW}Different Domain URLs:{Style.RESET_ALL}")
-    for url in sorted(diff_domain_urls):
-        print(Fore.YELLOW + url + Style.RESET_ALL)
-        if args.output:
-            with open(args.output, "a") as output_file:
-                output_file.write(url + "\n")
+        # print(f"{Fore.YELLOW}Different Domain URLs:{Style.RESET_ALL}")
+        # for url in sorted(diff_domain_urls):
+        #     print(Fore.YELLOW + url + Style.RESET_ALL)
+        #     if args.output:
+        #         with open(args.output, "a") as output_file:
+        #             output_file.write(url + "\n")
 
 
 if __name__ == "__main__":
